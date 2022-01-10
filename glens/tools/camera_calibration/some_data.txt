@@ -1,0 +1,10 @@
+
+3.1cm is the size of the  chessboard
+
+homography:
+1m 1A1 cam entrance
+
+1A1 2.45*A1
+
+cam_1,cam_2:
+2.8A1 - 1.2A1

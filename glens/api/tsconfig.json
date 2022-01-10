@@ -1,0 +1,19 @@
+{
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "outDir": "build",
+    "strictNullChecks":false,
+    "noImplicitAny": false,
+    "target": "es2020",
+    "paths": {
+      "gateways": ["src/gateways"],
+      "data": ["src/data"],
+      "domain": ["src/domain"]
+    }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

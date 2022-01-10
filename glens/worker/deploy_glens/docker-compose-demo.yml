@@ -1,0 +1,105 @@
+version: '3'
+services:
+        
+        ##################################################################################################
+        redis:
+            image: "redis:alpine"
+            ports:
+              - "6379:6379"
+            restart: always
+            volumes: 
+              - './:/data'
+            command:
+              - /bin/sh
+              - -c
+              - |
+                  nohup redis-server  &
+                  redis-cli FLUSHALL
+                  sleep 6
+                  echo "adding some default key value"
+                  redis-cli -x  SET config < config_deploy.json  
+                  echo "Get docker key value"
+                  redis-cli GET config
+                  # this will keep container running
+                  tail -f /dev/null
+           
+        ##################################################################################################
+        api:
+              image: "glens-api"
+
+              ports:
+                     - "8081:8081"
+              restart: always
+              environment:
+                      - REDIS_HOST=redis
+                      - MONGODB_URI=mongodb://mongodb:27017/glens-backend
+
+        ##################################################################################################
+        mongodb:
+              image:  "mongo"
+              restart: always
+        ##################################################################################################
+
+        tensorflow:
+            runtime: "nvidia"
+            image: tensorflow/serving:latest-gpu
+            #image: tensorflow/serving
+            restart: always
+            ports:
+                  - '8501:8501'
+            volumes:
+                  - '../../tensorflow:/models'
+            command:
+                    #- '--model_config_file=/models/models.config' 
+                    - '--model_config_file=/models/models_essential.config' 
+
+        
+        ######################################            
+        posenet:
+
+                runtime: nvidia
+                depends_on:
+                        - redis
+                        - tensorflow
+
+                restart: always
+                image: posenet-python-gpu
+                
+                command: python3 service.py
+                ## for logging messages with color
+                tty: true
+                environment:
+                     DEBUG_COLORS: "true"
+                     TERM: xterm-256color
+                     COLORTERM: truecolor  
+            
+        ##################################################################################################
+        
+        appstud-tensorflow-calls:
+
+                depends_on:
+                        - redis
+                        - tensorflow
+
+                restart: always
+                image: glens-tensorflow-calls
+                ## for logging messages with color
+                volumes:
+                    - '../tensorflow-serving-calls-worker/src:/app'
+
+                tty: true
+                environment:
+                     DEBUG_COLORS: "true"
+                     TERM: xterm-256color
+                     COLORTERM: truecolor  
+        ##################################################################################################
+        appstud-tracking:
+            depends_on:
+                  - redis
+                  - tensorflow
+            restart: always
+            image: glens-tracking
+            tty: true
+            environment:
+                 DEBUG_COLORS: "true"
+                 TERM: xterm-256color

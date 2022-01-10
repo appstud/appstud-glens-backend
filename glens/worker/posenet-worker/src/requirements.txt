@@ -1,0 +1,8 @@
+scipy==1.4.1
+opencv_python_headless==3.4.5.20
+redis==3.4.1
+numpy==1.18.1
+urllib3==1.25.8
+PyYAML==5.3
+coloredlogs==15.0
+

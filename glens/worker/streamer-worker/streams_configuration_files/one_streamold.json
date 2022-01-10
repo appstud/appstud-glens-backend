@@ -1,0 +1,9 @@
+{
+    "5":{
+      "source":"videos/oxford.mp4",
+      "CAM_ID":"5",
+      "pipeline": "posenet LOG_LEVEL=ERROR | tensorflow-calls LOG_LEVEL=ERROR GET_PERS_REID=True GET_HAIR_COLOR=True GET_AGE_SEX_GLASSES=True |tracking RO=0.8 USE_RECO=True LOG_LEVEL=DEBUG"
+ 
+    }
+
+}

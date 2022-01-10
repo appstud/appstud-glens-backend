@@ -1,0 +1,4 @@
+
+#### model 2 is an ensemble of 2 shallow fast cnn. Input: face as detected no alignment
+#### model 3 is a shallow fast cnn with attention module CBAM. Input: face with 20% expanded bounding box no alignment
+ 

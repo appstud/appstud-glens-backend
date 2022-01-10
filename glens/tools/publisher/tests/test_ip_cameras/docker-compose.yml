@@ -1,0 +1,118 @@
+version: '3'
+services:
+        
+        ##################################################################################################
+        redis:
+            image: "redis:alpine"
+            ports:
+              - "6379:6379"
+            volumes: 
+              - './:/data'
+            command:
+              - /bin/sh
+              - -c
+              - |
+                  nohup redis-server  &
+                  redis-cli FLUSHALL
+                  sleep 6
+                  echo "adding some default key value"
+                  redis-cli -x  SET config < config_oxford.json  
+                  echo "Get docker key value"
+                  redis-cli GET config
+                  # this will keep container running
+                  tail -f /dev/null
+           
+        ##################################################################################################
+        api:
+              image: "glens-api"
+              volumes: 
+                      - "../../../../api:/app"
+
+              ports:
+                     - "8081:8081"
+              restart: always
+              environment:
+                      - REDIS_HOST=redis
+                      - MONGODB_URI=mongodb://mongodb:27017/glens-backend
+
+        ##################################################################################################
+        mongodb:
+              image:  "mongo"
+
+        ##################################################################################################
+
+        tensorflow:
+            #runtime: "nvidia"
+            #image: tensorflow/serving:latest-gpu
+            image: tensorflow/serving
+            restart: always
+            ports:
+                  - '8501:8501'
+            volumes:
+                  - '../../../../tensorflow:/models'
+            command:
+                  - '--model_config_file=/models/models.config' 
+
+        ##################################################################################################
+        
+        appstud-tensorflow-calls:
+
+                #runtime: nvidia
+                depends_on:
+                        - redis
+                        - tensorflow
+
+                restart: always
+                image: glens-tensorflow-calls
+                volumes:
+                        - '../../../../worker/tensorflow-serving-calls-worker:/app'
+
+        ##################################################################################################
+                  
+        appstud-face-detection:
+            runtime: "nvidia"
+            depends_on:
+                     - appstud-tensorflow-calls
+                     - redis
+                     - tensorflow
+            restart: always
+            image: glens-face-detection
+            volumes:
+                      - '../../../../worker/face-detection-worker:/app'
+
+        ##################################################################################################
+        appstud-tracking:
+            depends_on:
+                  - redis
+                  - tensorflow
+            restart: always
+            image: glens-tracking
+            volumes:
+                    - '../../../../../glens-multi-face-tracking-recognition/tracking:/app'
+
+                  
+        ##################################################################################################
+        appstud-object-detection:
+
+                runtime: nvidia
+                depends_on:
+                        - redis
+                restart: always
+                image: glens-object-detection
+                
+                volumes: 
+                        - '../../../../../appstud-glens-object-detection:/app'
+        
+        ##################################################################################################
+        appstud-clustering:
+            depends_on:
+                    - redis 
+
+            restart: always
+            image: appstud-glens-clustering
+            volumes:
+                    - '../../../../../appstud-glens-cluster_covid19:/app'
+             
+        
+        ##################################################################################################
+       ##################################################################################################

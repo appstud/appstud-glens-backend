@@ -1,0 +1,8 @@
+{
+    "0":{
+      "source":"videos/vid.mp4",
+      "CAM_ID":"0",
+      "pipeline": " posenet LOG_LEVEL=ERROR  | tensorflow-calls GET_AGE_SEX_GLASSES=true GET_PERS_REID=true LOG_LEVEL=WARNING GET_HAIR_COLOR=False  | tracking USE_PERSON_DATA=true USE_TEMPORAL=False USE_RECO=True LOG_LEVEL=ERROR "
+    }
+
+}

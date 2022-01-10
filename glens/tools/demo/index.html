@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy image sender</title>
+</head>
+<style>
+    #container {
+        text-align: center;
+    }
+    #webcam {
+        flex: 1;
+        border: 3px solid lightcoral;
+        border-radius: 10px;
+    }
+    #logs {
+        flex: 1;
+        vertical-align: top;
+        height: 480px;
+        overflow-y: scroll;
+    }
+    #logs p {
+        text-align: left;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-weight: 300;
+        margin: 5px 0 10px 0;
+        background-color: lightgrey;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    #result {
+        flex: 1;
+        border: 3px solid lightseagreen;
+        border-radius: 10px;
+    }
+    .not-displayed {
+        display: none;
+    }
+</style>
+<body>
+<div id="options"  style="display: block">
+    <p id="status">OpenCV.js is loading...</p>
+    <p id="pipeline"></p>
+
+
+    <form>
+        <label for="gender-age-glasses">gender-age-glasses:</label>
+        <input type="checkbox" id="gender-age-glasses" onclick='handleClick(this);' name="gender-age-glasses"> <br>
+        <label for="haircolor">haircolor:</label>
+        <input type="checkbox" id="haircolor" onclick='handleClick(this);' name="haircolor"> <br>
+        <label for="mask">mask:</label>
+        <input type="checkbox" id="mask" onclick='handleClick(this);' name="mask"> <br>
+        <label for="head-pose">head-pose:</label>
+        <input type="checkbox" id="head-pose" onclick='handleClick(this);' name="head-pose"> <br>
+        <label for="face-recognition">face recognition:</label>
+        <input type="checkbox" id="face-recognition" onclick='handleClick(this);' name="face-recognition"> <br>
+      </form>
+      <img src="pic_trulli.jpg" alt="No image" id="temp"></div>
+
+<div id="container">
+    <div style="display: flex">
+        <video autoplay="true" id="webcam"></video>
+        <canvas id="result"></canvas>
+    </div>
+    <div id="logs"></div>
+</div>
+<script type="text/javascript" src="https://bundle.run/buffer@6.0.3"></script>
+
+</script>
+<script>
+
+const Buffer = buffer.Buffer
+function Logger(name = '') {
+    this.logs = document.getElementById('logs')
+    this.log = (message) => {
+        const el = document.createElement('p')
+        el.innerText = `${name}: ${message}`
+        this.logs.prepend(el)
+    }
+    return this
+}
+
+function ImageSnapper(feed) {
+    this.feed = new ImageCapture(feed.captureStream(15).getVideoTracks()[0])
+    this.canvas = document.createElement('canvas')
+    this.canvas.id='webcam_img'
+    this.context = this.canvas.getContext('2d')
+
+    this.init = (image) => {
+        this.canvas.width = image.width
+        this.canvas.height = image.height
+        this.init = () => {}
+    }
+
+    this.capture = async () => {
+        const image = await this.feed.grabFrame()
+        this.init(image)
+        this.context.drawImage(image, 0, 0, image.width, image.height)
+        return this.canvas.toDataURL('image/jpeg', 0.3)
+    }
+}
+
+function ImageProvider() {
+    this.logger = new Logger('images')
+    this.feed = document.getElementById('webcam')
+    this.snapper;
+
+    this.initialize = () => {
+        if (navigator.mediaDevices.getUserMedia) {
+            this.logger.log('Requesting access to camera')
+        //navigator.mediaDevices.getUserMedia({ video: {width: { ideal: 1280 },height: { ideal: 1920 }}} )
+        navigator.mediaDevices.getUserMedia({ video: {width: { ideal: 640},height: { ideal: 480 }}} )
+                .then((_stream) => {
+                    this.feed.srcObject = _stream
+                    this.snapper = new ImageSnapper(this.feed)
+                })
+                .catch((err) => {
+                    this.logger.log(err)
+                })
+        } else this.logger.log('Incompatible web browser')
+    }
+
+    this._onTick = async () => {
+        const image = await this.snapper.capture()
+        if (this.onImage)
+            if (this.onImage(image))
+                window.requestAnimationFrame(this._onTick)
+    }
+
+    // Noop. Need to be implemented by caller / main
+    this.onImage = () => {}
+
+    this.feed.onplay = () => {
+        window.requestAnimationFrame(this._onTick)
+    }
+    return this
+}
+
+function ImageResult() {
+    
+    let base64text;
+    let base64data;
+    let buffer;
+    
+    //let canvas = document.getElementById('result')
+    
+    let canvas = document.createElement('canvas')
+    canvas.width=640
+    canvas.height=640
+    let ctx = canvas.getContext("2d");
+    let image=new Image()
+    //let image=document.getElementById('temp')
+    let img;
+    image.onload = function() {
+    //  ctx.drawImage(this, 0, 0, this.width, this.height)
+     img=cv.imread(image)
+
+     // ctx.drawImage(this, 0, 0);
+      };
+    this.print = (data) => {
+        //image.src = `data:image/jpeg;base64,${data}`
+        //image.src = data.image
+        //var img = new Image();
+
+        // load base64 encoded image
+        //base64text=data.image;//Base64 encoded string
+        //base64data =base64text.replace('data:image/jpeg;base64','').replace('data:image/png;base64','');//Strip image type prefix
+        
+        //buffer = Buffer.from(base64data,'base64');
+        //img=atob(buffer)images: Requesting access to cameraimages: Requesting access to camera
+
+
+
+
+        //img = cv.imdecode(buffer); //Image is now represented as Mat
+        //ctx.tdrawImage(data.image, 0, 0);
+        //img = cv.imread('webcam_img')
+        //console.log('image width: ' + img.cols + '\n')
+        image.src=data.image 
+        //img = cv.matFromImageData(ctx.getImageData(0, 0,640,480));
+        console.log('image width: ' + img.cols + '\n' +
+            'image height: ' + img.rows + '\n' +
+            'image size: ' + img.size().width + '*' + img.size().height + '\n' +
+            'image depth: ' + img.depth() + '\n' +
+            'image channels ' + img.channels() + '\n' +
+            'image type: ' + img.type() + '\n');
+       //console.log(img)
+        //drawing data
+        for (var id in data.data){
+                    
+            cv.rectangle(img, new cv.Point(data.data[id].bbox[0], data.data[id].bbox[1]), new cv.Point(data.data[id].bbox[0]+data.data[id].bbox[2], data.data[id].bbox[1]+data.data[id].bbox[3]), new cv.Scalar(255, 0, 0, 255), 5);
+            
+            for(var i=0; i<=4;i++){
+                cv.circle(img,new cv.Point(data.data[id].landmarks[i][0],data.data[id].landmarks[i][1]), 3, new cv.Scalar(255,0,0,255), -1);
+            }
+
+            cv.putText(img,"ID: "+id,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+
+            n=1
+
+            if(data.data[id].age){
+                cv.putText(img,"age: "+data.data[id].age,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]+n*15),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+                n++;
+                cv.putText(img,"gender: "+data.data[id].sex,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]+n*15),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+                n++;
+                cv.putText(img,"glasses: "+data.data[id].glasses,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]+n*15),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+                n++;
+
+            }
+
+            if(data.data[id].beard_mask){
+                cv.putText(img,"beard_mask: "+data.data[id].beard_mask,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]+n*15),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+                n++;
+
+            }  
+
+           if(data.data[id].hairColor){
+            cv.putText(img,"hair color: "+data.data[id].hairColor,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]+n*15),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+            n++;
+             }
+
+
+            if(data.data[id].pose_data){
+            cv.putText(img,"pose_data: "+data.data[id].pose_data,new cv.Point(data.data[id].bbox[0]+10,data.data[id].bbox[1]+n*15),cv.FONT_HERSHEY_DUPLEX,0.7,new cv.Scalar(0,255,0,255),1,false);
+            n++;
+             }
+
+
+        
+        }
+        //
+        
+        cv.imshow("result", img);
+        img.delete();
+
+
+        
+
+    }
+}
+let pipeline="face-detection VERBOSE=true REPORT_PERF=True| tensorflow-calls REPORT_PERF=True GET_AGE_SEX_GLASSES=false GET_MASK=false GET_POSE=false GET_HAIR_COLOR=false GET_FACE_RECO=false VERBOSE=true"
+function main() {
+
+
+    this.logger = new Logger('main')
+    //this.messages = new MessageBus()
+    this.worker=new Worker("worker.js")
+    this.images = new ImageProvider()
+    this.result_image = new ImageResult()
+
+    this.images.onImage = (img) => {
+            /*this.messages.send(JSON.stringify({
+               type: 'message:v1:image:process',
+                payload: { pipeline:pipeline, CAM_ID:'0',current_time:Date.now(), image:img }
+            }))*/
+            this.worker.postMessage(JSON.stringify({
+               //type: 'message:v1:image:process',
+                type: 'message:v1:image:process:save',
+                payload: { pipeline:pipeline, CAM_ID:'0',current_time:Date.now(), image:img }
+            }))
+            return true
+        }
+    this.images.initialize()
+    // "GET_MASK","GET_POSE","GET_FACE_RECO","GET_PERS_REID",
+    //data=json.dumps({"type":'message:v1:image:process',"payload":{"pipeline":processing_pipeline,"CAM_ID":CAM_ID,"current_time":start,"image":BGRToString(img)}})
+
+   
+    this.worker.onmessage = function (event) {
+
+
+      let result;
+        if (event.data){
+            //result = JSON.parse(event.data).attributes
+            result = event.data
+            delete result['pipeline']
+            delete result['CAM_ID']
+            delete result['ID_IMG']
+
+            delete result['current_time']
+
+
+            //console.log(result)
+        }   
+        else
+            result = {}
+        if (result['image']) {
+            //this.result.print(result['image'])
+            result_image.print(result)
+            delete result['image']
+            
+        }
+        
+        logger.log(JSON.stringify(result))
+
+    };
+
+
+
+}
+
+function onOpenCvReady() {
+  document.getElementById('status').innerHTML = 'OpenCV.js is ready.'
+
+}
+
+document.onkeyup = function(e) {
+    if (e.which == 77) {
+        toggleDivState();
+    }
+};
+
+
+function toggleDivState() {
+    var x = document.getElementById("options");
+   
+    if (x.style.display =="none") {
+        x.style.display = "block"; }
+    else {x.style.display = "none";
+
+    }
+}
+
+
+function handleClick(cb) {
+if(cb.id=="gender-age-glasses"){
+    
+    pipeline=pipeline.replace("GET_AGE_SEX_GLASSES=true","GET_AGE_SEX_GLASSES="+cb.checked).replace("GET_AGE_SEX_GLASSES=false","GET_AGE_SEX_GLASSES="+cb.checked)
+}
+
+if(cb.id=="mask"){
+    
+    pipeline=pipeline.replace("GET_MASK=true","GET_MASK="+cb.checked).replace("GET_MASK=false","GET_MASK="+cb.checked)
+}
+
+if(cb.id=="head-pose"){
+    
+    pipeline=pipeline.replace("GET_POSE=true","GET_POSE="+cb.checked).replace("GET_POSE=false","GET_POSE="+cb.checked)
+}
+
+if(cb.id=="haircolor"){
+    pipeline=pipeline.replace("GET_HAIR_COLOR=true","GET_HAIR_COLOR="+cb.checked).replace("GET_HAIR_COLOR=false","GET_HAIR_COLOR="+cb.checked)
+}
+if(cb.id=="face-recognition"){
+    pipeline=pipeline.replace("GET_FACE_RECO=true","GET_FACE_RECO="+cb.checked).replace("GET_FACE_RECO=false","GET_FACE_RECO="+cb.checked)
+    if(cb.checked){
+        pipeline+="| tracking REPORT_PERF=True USE_RECO=true USE_TEMPORAL=false"
+    }
+    else{
+        pipeline=pipeline.replace("| tracking REPORT_PERF=True USE_RECO=true USE_TEMPORAL=false","")
+
+    }
+}
+document.getElementById('pipeline').innerHTML = 'pipeline:  '+pipeline
+
+}
+
+main()
+
+</script>
+
+<script async src="https://docs.opencv.org/4.0.1/opencv.js "  onload="onOpenCvReady();" type="text/javascript"></script>
+
+
+</body>
+</html>

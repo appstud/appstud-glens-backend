@@ -1,0 +1,30 @@
+FROM ubuntu as base_image
+
+
+RUN apt update && \
+    DEBIAN_FRONTEND="noninteractive" apt install --no-install-recommends  -y python3 python3-pip  libgtk-3-dev  && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip3 install --upgrade setuptools
+
+# set a directory for the app
+WORKDIR ./app
+
+# install dependencies
+# We did it as soon as possible to use a maximum the Docker cache
+
+COPY src/ .
+RUN  pip3 install --no-cache-dir -r requirements.txt
+
+# copy all the remaning files to the container
+
+
+# tell the port number the container should expose
+###tensorflow serving port####
+#EXPOSE 8501
+######################
+
+####redis port#######
+#EXPOSE 6379
+#####################
+
+CMD ["python3", "-u","./service.py"]

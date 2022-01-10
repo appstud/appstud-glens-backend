@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+
+###############
+  posenet:
+      runtime: nvidia
+      image: "posenet-python-gpu"
+      command: python service.py
+      restart: always
+      volumes: 
+          - "../:/work"
+
+                
+###########################      
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+###########################
+  publisher_from_webcam:
+      depends_on:
+         - posenet
+         - redis
+      restart: always
+      build: ./publisher
+      devices: 
+         ["/dev/video0:/dev/video0"]
+      volumes:
+         - './publisher:/app'
+         - '/tmp/.X11-unix:/tmp/.X11-unix' 
+
+      environment:
+          - DISPLAY
+          - QT_X11_NO_MITSHM=1
+      ports:        
+           - "8765"
+

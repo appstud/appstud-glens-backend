@@ -1,0 +1,16 @@
+{
+    "0":{
+      "source":"videos/vid.mp4",
+      "CAM_ID":"0",
+      "pipeline": "face-detection VERBOSE=true | tensorflow-calls VERBOSE=true GET_FACE_RECO=True GET_HAIR_COLOR=True GET_AGE_SEX_GLASSES=True |tracking USE_RECO=True VERBOSE=true"
+ 
+    },
+    "1":{
+      "source":"videos/mask2.mp4",
+      "CAM_ID":"1",
+      "pipeline": "face-detection VERBOSE=true | tensorflow-calls VERBOSE=true GET_HAIR_COLOR=True GET_FACE_RECO=True GET_AGE_SEX_GLASSES=True |tracking USE_RECO=True VERBOSE=true"
+ 
+    }
+
+
+}

@@ -1,0 +1,4 @@
+matplotlib
+websockets
+asyncio
+python-dotenv

@@ -1,0 +1,63 @@
+version: '3'
+services:
+
+###########################      
+
+  tensorflow:
+    image: tensorflow/serving
+    restart: always
+    ports:
+      - '8501:8501'
+    volumes:
+      - './modelsTFServing:/models'
+    command:
+      - '--model_config_file=/models/models.config'
+
+###########################
+  proxy:
+    restart: always
+    build: ./proxy/socker
+    volumes:
+      - './proxy/socker/src/socker:/app'
+
+    ports:
+      - "30765:8765"
+
+###########################      
+        
+  backend-glens:
+
+    restart: always
+    build: ./backend-glens
+    volumes:
+      - './backend-glens:/app'
+    environment:
+      - GLENS_RETURN_IMAGES=True
+  
+###########################      
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+###########################
+
+  publisher_from_webcam:
+    depends_on:
+    - backend-glens
+    - tensorflow
+    - proxy
+    restart: always
+    build: ./publisher
+    devices: 
+         ["/dev/video0:/dev/video0"]
+    volumes:
+      - './publisher:/app'
+      - '/tmp/.X11-unix:/tmp/.X11-unix' 
+ 
+    environment:
+       - DISPLAY
+       - QT_X11_NO_MITSHM=1
+         #ports:
+         #- "8765"
+

@@ -1,0 +1,8 @@
+{
+    "1":{
+      "source":"rtspsrc location=rtsp://admin:appstud2021@192.168.0.112:10554/udp/av0_0 latency=0 ! decodebin ! videoconvert ! appsink drop=True",
+      "CAM_ID":"1",
+      "pipeline": "posenet"
+    }
+ 
+}

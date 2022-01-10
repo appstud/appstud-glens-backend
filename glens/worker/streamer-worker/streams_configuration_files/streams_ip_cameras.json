@@ -1,0 +1,15 @@
+{
+    "0":{
+      "source":"rtspsrc location=rtsp://admin:appstud2021@192.168.0.110:10554/udp/av0_0 latency=0 port-range=55001-55005 ! decodebin ! videoconvert ! appsink drop=True",
+      "CAM_ID":"0",
+      "pipeline": " posenet LOG_LEVEL=DEBUG REPORT_PERF=true | tensorflow-calls REPORT_PERF=true GET_PERS_REID=true LOG_LEVEL=ERROR GET_HAIR_COLOR=False GET_AGE_SEX_GLASSES=True | tracking REPORT_PERF=true USE_PERSON_DATA=true USE_TEMPORAL=true USE_RECO=True LOG_LEVEL=ERROR "
+ 
+    },
+    "1":{
+      "source":"rtspsrc location=rtsp://admin:appstud2021@192.168.0.112:10554/udp/av0_0 latency=0 port-range=55006-55011 ! decodebin ! videoconvert ! appsink drop=True",
+      "CAM_ID":"1",
+      "pipeline": " posenet LOG_LEVEL=DEBUG REPORT_PERF=true | tensorflow-calls LOG_LEVEL=ERROR GET_PERS_REID=true GET_HAIR_COLOR=False REPORT_PERF=true GET_AGE_SEX_GLASSES=True | tracking USE_TEMPORAL=true USE_PERSON_DATA=true REPORT_PERF=true USE_RECO=True LOG_LEVEL=ERROR"
+
+    }
+ 
+}

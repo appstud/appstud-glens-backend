@@ -1,0 +1,12 @@
+*.mp4
+*.xlsx
+glens/api/node_modules
+glens/api/build
+glens/api/coverage
+.idea
+
+__pycache__
+**/__pycache__
+.DS_Store
+**/.DS_Store
+mlruns/

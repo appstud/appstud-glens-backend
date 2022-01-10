@@ -1,0 +1,111 @@
+version: '3'
+services:
+        
+        redis:
+            image: "redis:alpine"
+            ports:
+              - "6379:6379"
+            volumes: 
+              - './:/data'
+            command:
+              - /bin/sh
+              - -c
+              - |
+                  nohup redis-server  &
+                  redis-cli FLUSHALL
+                  sleep 6
+                  echo "adding some default key value"
+                  redis-cli -x  SET config < config_oxford.json  
+                  echo "Get docker key value"
+                  redis-cli GET config
+                  # this will keep container running
+                  tail -f /dev/null
+        
+        appstud-face-detection:
+            runtime: "nvidia"
+            depends_on:
+                     - appstud-tensorflow-calls
+                     - redis
+                     - tensorflow
+            restart: always
+            image: glens-face-detection
+            volumes:
+                      - '../../../../worker/face-detection-worker:/app'
+
+
+        appstud-object-detection:
+                runtime: nvidia
+                depends_on:
+                        - redis
+                restart: always
+                image: glens-object-detection
+                volumes: 
+                        - '../../../../../appstud-glens-object-detection:/app'
+
+        appstud-tensorflow-calls:
+                
+                #runtime: nvidia
+                depends_on:
+                        - redis
+                        - tensorflow
+
+                restart: always
+                image: glens-tensorflow-calls
+                volumes:
+                        - '../../../../worker/tensorflow-serving-calls-worker:/app'
+
+
+
+        appstud-clustering:
+            depends_on:
+                    - redis 
+               
+            restart: always
+            image: appstud-glens-clustering
+            volumes:
+                    - '../../../../../appstud-glens-cluster_covid19:/app'
+        tensorflow:
+            #runtime: "nvidia"
+         ###image: tensorflow/serving:latest-gpu
+            image: tensorflow/serving
+            restart: always
+            ports:
+                  - '8501:8501'
+            volumes:
+                  - '../../../../tensorflow:/models'
+            command:
+                  - '--model_config_file=/models/models.config'
+        
+
+        appstud-tracking:
+            depends_on:
+                  - redis
+                  - tensorflow
+            restart: always
+            image: glens-tracking
+            volumes:
+                    - '../../../../../glens-multi-face-tracking-recognition/tracking:/app'
+
+          
+        appstud-streamer:
+            depends_on:
+              - redis
+              - appstud-object-detection
+            restart: always
+            image: streamer
+            volumes:
+              - './:/app'
+            environment:
+                - G_STREAMER_PIPELINE=vid.mp4
+                #- G_STREAMER_PIPELINE=TownCentreXVID.mp4
+                #- G_STREAMER_PIPELINE=commercial_center.mp4
+                #- G_STREAMER_PIPELINE=train_station.mp4
+                #- PROCESSING_PIPELINE=streamer | face-detection | tensorflow-calls GET_HAIR_COLOR=True GET_AGE_SEX_GLASSES=True | tracking
+                - PROCESSING_PIPELINE= streamer | face-detection |tensorflow-calls GET_FACE_RECO=True  | tracking USE_RECO=True MIN_E=0.01 RO=0.75 ALPHA=0.01 W_3D=0.1 W_RECO=3 LAMBDA_A=2
+                ###- PROCESSING_PIPELINE= streamer |object-detection VERBOSE=True REPORT_PERF=True|tensorflow-calls REPORT_PERF=True GET_POSE=True GET_PERS_REID=True |tracking VERBOSE=True REPORT_PERF=True USE_RECO=True USE_TEMPORAL=True
+                #- PROCESSING_PIPELINE= streamer | object-detection REPORT_PERF=True | cluster REPORT_PERF=True
+                #- PROCESSING_PIPELINE= streamer | object-detection | tensorflow-calls  | tracking USE_TEMPORAL=True
+                - CAM_ID=0
+            command: 
+                python3 stream.py
+

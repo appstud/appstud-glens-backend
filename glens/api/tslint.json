@@ -1,0 +1,35 @@
+{
+  "extends": ["gts/tslint.json"],
+  "linterOptions": {
+    "exclude": [
+      "**/*.json"
+    ]
+  },
+  "rules": {
+    "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+    "quotemark": [true, "single"],
+    "member-access": [false],
+    "ordered-imports": [false],
+    "max-line-length": [true, 120],
+    "member-ordering": [false],
+    "interface-name": [false],
+    "arrow-parens": false,
+    "no-return-await": true,
+    "object-literal-sort-keys": false,
+    "semicolon": [true,"never"],
+    "variable-name":{
+      "options": [
+        "ban-keywords",
+        "check-format",
+        "allow-leading-underscore",
+        "allow-pascal-case"
+      ]
+    },
+    "no-unused-expression": [true, "allow-new"],
+    "no-console": [true, "log", "error"],
+    "no-any": true,
+    "curly": [true, "as-needed"],
+    "cyclomatic-complexity": [true, 10],
+    "no-trailing-whitespace": [true,"ignore-template-strings"]
+  }
+}
