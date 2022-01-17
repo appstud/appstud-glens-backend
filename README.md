@@ -15,7 +15,7 @@ This software is distributed through [AGPL V3](./LICENSE).
 
 **Main contributor**
 
-[Dr. Kahtar Fawzi](https://github.com/Fawzikhattar)
+[Dr. Khattar Fawzi](https://github.com/Fawzikhattar)
 
 **Notable contributions**
 
