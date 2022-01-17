@@ -10,3 +10,15 @@ This software is distributed through [AGPL V3](./LICENSE).
 
 2. [GLENS API](./glens)
 
+
+## Contributors
+
+**Main contributor**
+
+[Dr. Kahtar Fawzi](https://github.com/Fawzikhattar)
+
+**Notable contributions**
+
+[Basso Jérémy](https://github.com/jeremy-basso)
+
+[Ribas Romuald](https://github.com/romualdr)
