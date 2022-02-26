@@ -63,4 +63,4 @@ urllib3==1.25.9
 Werkzeug==1.0.1
 wrapt==1.12.1
 tfa-nightly
-mlflow==1.18.0
+mlflow==1.23.1
