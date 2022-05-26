@@ -54,7 +54,7 @@ six==1.13.0
 sk-video==1.1.10
 spark-parser==1.8.9
 split-folders==0.3.1
-tensorflow-gpu==2.3.0
+tensorflow-gpu==2.7.2
 Keras
 Keras-Preprocessing==1.1.2
 termcolor==1.1.0
