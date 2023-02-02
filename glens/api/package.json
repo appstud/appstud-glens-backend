@@ -57,7 +57,7 @@
     "jsonwebtoken": "^8.5.1",
     "migrate": "^1.6.2",
     "migrate-mongoose": "^4.0.0",
-    "mongoose": "^5.9.9",
+    "mongoose": "^5.13.15",
     "pino": "^6.2.0",
     "utf-8-validate": "^5.0.2",
     "uuid": "^7.0.3",
